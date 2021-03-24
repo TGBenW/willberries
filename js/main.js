@@ -13,7 +13,6 @@ const mySwiper = new Swiper('.swiper-container', {
 const buttonCart = document.querySelector('.button-cart');
 const modalCart = document.querySelector('#modal-cart');
 const modalClose = document.querySelector('.modal-close');
-const overlay = document.querySelector('.overlay');
 
 function openModal() {
 	modalCart.classList.toggle('show');
@@ -24,7 +23,6 @@ const closeModal = function () {
 };
 
 buttonCart.addEventListener('click', openModal);
-modalClose.addEventListener('click', closeModal);
 
 // scroll smooth
 
@@ -45,13 +43,13 @@ modalClose.addEventListener('click', closeModal);
 
 //additional task day 1
 
-overlay.addEventListener('click', (event) => {
+modalCart.addEventListener('click', (event) => {
   const target = event.target;
-  if (target.classList.contains('overlay')) {
+  if (target.classList.contains('overlay') || target.classList.contains('modal-close')) {
     closeModal();
   };
 });
-
+				
 const escapeHandler = event => {
   if (event.code === "Escape") {
     closeModal();
