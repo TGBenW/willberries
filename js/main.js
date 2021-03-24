@@ -26,7 +26,7 @@ buttonCart.addEventListener('click', openModal);
 
 // scroll smooth
 
-(function() {
+(function () {
 	const scrollLinks = document.querySelectorAll('a.scroll-link');
 
 	for (const scrollLink of scrollLinks) {
@@ -39,7 +39,22 @@ buttonCart.addEventListener('click', openModal);
 			})
 		});
 	};
-})()
+})();
+
+(function () {
+	const scrollViewAlls = document.querySelectorAll('a.more');
+
+	for (const scrollViewAll of scrollViewAlls) {
+		scrollViewAll.addEventListener('click', function (event) {
+			event.preventDefault();
+			const id = scrollViewAll.getAttribute('href');
+			document.querySelector(id).scrollIntoView({
+				behavior: 'smooth',
+				block: 'start',
+			})
+		});
+	};
+})();
 
 //additional task day 1
 
