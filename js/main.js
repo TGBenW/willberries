@@ -124,5 +124,6 @@ navigationLink.forEach(function (link) {
 		const field = link.dataset.field;
 		const value = link.textContent;
 		filterCards(field, value);
+		if (value === 'All') getGoods().then(renderCards);;
 	})
 });
