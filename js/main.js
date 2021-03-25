@@ -41,7 +41,7 @@ buttonCart.addEventListener('click', openModal);
 	};
 })();
 
-(function () {
+/* (function () {
 	const scrollViewAlls = document.querySelectorAll('a.more');
 
 	for (const scrollViewAll of scrollViewAlls) {
@@ -54,7 +54,7 @@ buttonCart.addEventListener('click', openModal);
 			})
 		});
 	};
-})();
+})(); */
 
 //additional task day 1
 
@@ -75,9 +75,11 @@ document.addEventListener('keydown', escapeHandler);
 
 // goods
 
-const more = document.querySelector('.more');
-const navigationLink = document.querySelectorAll('.navigation-link');
 const longGoodsList = document.querySelector('.long-goods-list');
+const viewAll = document.querySelectorAll('.view-all');
+const navigationLink = document.querySelectorAll('.navigation-link:not(.view-all)');
+const showAccessories = document.querySelectorAll('.show-accessories');
+const showClothing = document.querySelectorAll('.show-clothes');
 
 const getGoods = async function () {
 	const result = await fetch('db/db.json');
@@ -110,17 +112,21 @@ const createCard = function ({ label, name, img, description, id, price }) {
 const renderCards = function(data) {
 	longGoodsList.textContent = '';
 	const cards = data.map(createCard)
-	cards.forEach(function (card) {
-		longGoodsList.append(...cards)
-	})
+	longGoodsList.append(...cards)
 	document.body.classList.add('show-goods');
 }
 
-more.addEventListener('click', function (event) {
+const ShowAll = function (event) {
 	event.preventDefault();
 	getGoods().then(renderCards);
-	// scroll up when clicked needed!
-});
+}
+
+viewAll.forEach(function (elem) {
+	elem.addEventListener('click', function (event) {
+		event.preventDefault();
+		getGoods().then(renderCards);
+	});
+})
 
 const filterCards = function (field, value) {
 	getGoods()
@@ -139,6 +145,20 @@ navigationLink.forEach(function (link) {
 		const field = link.dataset.field;
 		const value = link.textContent;
 		filterCards(field, value);
-		if (value === 'All') getGoods().then(renderCards);;
+		//if (value === 'All') getGoods().then(renderCards);; --------ALL BUTTON MY SOLUTION
+	})
+});
+
+showAccessories.forEach(item => {
+	item.addEventListener('click', event => {
+		event.preventDefault();
+		filterCards('category', 'Accessories');
+	})
+});
+
+showClothing.forEach(item => {
+	item.addEventListener('click', event => {
+		event.preventDefault();
+		filterCards('category', 'Clothing');
 	})
 });
