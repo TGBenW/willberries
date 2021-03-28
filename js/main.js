@@ -43,15 +43,23 @@ const checkGoods = () => {
 const getGoods = checkGoods();
 
 const cart = {
-	cartGoods: [],
+	cartGoods: JSON.parse(localStorage.getItem('cartWilb')) || [],
+	updateLocalStorage() {
+		localStorage.setItem('cartWilb', JSON.stringify(this.cartGoods));
+	},
+	getCountCartGoods() {
+		return this.cartGoods.length
+	},
 	countQuantity() {
-		cartCount.textContent = this.cartGoods.reduce((sum, item) => {
+		const count = this.cartGoods.reduce((sum, item) => {
 			return sum + item.count
 		}, 0)
+		cartCount.textContent = count ? count : '';
 	},
 	clearCart() {
 		this.cartGoods.length = 0;
 		this.countQuantity();
+		this.updateLocalStorage();
 		this.renderCart();
 	},
 	renderCart(){
@@ -82,6 +90,7 @@ const cart = {
 	deleteGood(id) {
 		this.cartGoods = this.cartGoods.filter(item => id !== item.id);
 		this.renderCart();
+		this.updateLocalStorage();
 		this.countQuantity();
 	},
 	minusGood(id) {
@@ -92,8 +101,9 @@ const cart = {
 				break;
 			}
 		}
-		this.renderCart();
 		this.countQuantity();
+		this.updateLocalStorage();
+		this.renderCart();
 	},
 	plusGood(id) {
 		for (const item of this.cartGoods) {
@@ -102,8 +112,9 @@ const cart = {
 				break;
 			}
 		}
-		this.renderCart();
 		this.countQuantity();
+		this.updateLocalStorage();
+		this.renderCart();
 	},
 	addCartGoods(id) {
 		const goodItem = this.cartGoods.find(item => item.id === id);
@@ -119,6 +130,7 @@ const cart = {
 						price,
 						count: 1
 					});
+					this.updateLocalStorage();
 					this.countQuantity();
 				});
 		}
@@ -127,6 +139,10 @@ const cart = {
 
 btnDanger.addEventListener('click', () => {
 	cart.clearCart();
+	closeModal();
+			modalForm.reset();
+			
+			cart.clearCart();
 });
 
 document.body.addEventListener('click', event => {
@@ -150,7 +166,7 @@ cartTableGoods.addEventListener('click', event => {
 			cart.minusGood(id);
 		}
 		if (target.classList.contains('cart-btn-plus')) {
-			const id = target('.cart-item').dataset.id;
+			const id = target.closest('.cart-item').dataset.id;
 			cart.plusGood(id);
 		}
 	}
@@ -271,3 +287,70 @@ showClothing.forEach(item => {
 		filterCards('category', 'Clothing');
 	})
 });
+
+// day 4 - server
+
+const modalForm = document.querySelector('.modal-form');
+
+const postData = dataUser => fetch('./server.php', {
+	method: 'POST',
+	headers: {
+		'Content-Type': 'application/json'
+	},
+	body: dataUser,
+})
+
+const validForm = (formData) => {
+	let valid = false;
+
+	for (const [, value] of formData) {
+		if (value.trim()) {
+			valid = true;
+		} else {
+			valid = false;
+			break;
+		}
+	}
+	return valid;
+}
+
+modalForm.addEventListener('submit', event => {
+	event.preventDefault();
+	const formData = new FormData(modalForm);
+
+	if (validForm(formData) && cart.getCountCartGoods()) {
+		const data = {};
+
+		for (const [name, value] of formData) {
+			data[name] = value;
+		}
+
+		data.cart = cart.cartGoods;
+
+		postData(JSON.stringify(data))
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(response.status);
+				}
+				alert('Ваш заказ успешно отправлен, с Вами свяжутся в ближайшее время');
+			})
+			.catch(error => {
+				alert('К сожалению произошла ошибка, повторите попытку позже');
+				console.error(err);
+			})
+			.finally(() => {
+				closeModal();
+				modalForm.reset();
+				cart.clearCart();
+			});
+	} else {
+		if (!cart.getCountCartGoods()) {
+			alert('Добавьте товары в корзину');
+		}
+		if (!validForm(formData)) {
+			alert('Заполните форму правильно');
+		}
+	}
+
+	
+})
